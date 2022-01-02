@@ -1,15 +1,14 @@
 [package]
 name = "projected-hash-map"
 version = "0.1.2"
-edition = "2021"
 authors = ["Piotr Mikulski <piotr@near.org>"]
+edition = "2021"
 description = "Implementation of a projected HashMap over HashSet"
 readme = "README.md"
 repository = "https://github.com/pmnoxx/projected-hash-map"
 license = "Apache-2.0"
-keywords = ["hashmap", "hashset", "projected", "datastructures"]
+keywords = ["datastructures", "hashmap", "hashset", "projected"]
 categories = ["data-structures"]
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
