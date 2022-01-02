@@ -46,7 +46,7 @@ impl<T, V> Hash for HashMapHelper<T, V>
     }
 }
 
-pub(crate) struct ProjectedHashMap<T, V>
+pub struct ProjectedHashMap<T, V>
     where
         V: Borrow<T>,
         T: Hash + PartialEq + Eq,
@@ -73,24 +73,23 @@ impl<T, V> ProjectedHashMap<T, V>
 {
     /// Note: We need to remove the value first.
     /// The insert inside HashSet, will not remove existing element if it has the same key.
-    pub(crate) fn insert(&mut self, edge: V) {
+    pub fn insert(&mut self, edge: V) {
         self.repr.replace(HashMapHelper { inner: edge, pd: PhantomData });
     }
 
-    pub(crate) fn get(&self, key: &T) -> Option<&V> {
+    pub fn get(&self, key: &T) -> Option<&V> {
         self.repr.get(key).map(|v| &v.inner)
     }
 
-    pub(crate) fn remove(&mut self, key: &T) -> bool {
+    pub fn remove(&mut self, key: &T) -> bool {
         self.repr.remove(key)
     }
 
-    pub(crate) fn iter(&self) -> impl Iterator<Item = &V> + '_ {
+    pub fn iter(&self) -> impl Iterator<Item = &V> + '_ {
         self.repr.iter().map(|it| &it.inner)
     }
 
-    #[allow(unused)]
-    pub(crate) fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.repr.len()
     }
 }
