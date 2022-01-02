@@ -40,7 +40,7 @@ impl<T, V> Hash for HashMapHelper<T, V>
         T: Hash + PartialEq + Eq,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.inner.borrow().hash(state)
+        self.inner.borrow().hash(state);
     }
 }
 
@@ -49,8 +49,8 @@ pub struct ProjectedHashMap<T, V>
         V: Borrow<T>,
         T: Hash + PartialEq + Eq,
 {
-    repr: HashSet<HashMapHelper<T, V>>,
     pd: PhantomData<T>,
+    repr: HashSet<HashMapHelper<T, V>>,
 }
 
 impl<T, V> Default for ProjectedHashMap<T, V>
@@ -69,19 +69,20 @@ impl<T, V> ProjectedHashMap<T, V>
         T: Hash + PartialEq + Eq,
         HashMapHelper<T, V>: Eq,
 {
-    /// The insert inside HashSet, will not remove existing element if it has the same key.
-    pub fn insert(&mut self, edge: V) {
-        self.repr.replace(HashMapHelper { inner: edge, pd: PhantomData });
-    }
-
     /// Gets element
     pub fn get(&self, key: &T) -> Option<&V> {
         self.repr.get(key).map(|v| &v.inner)
     }
 
-    /// Removes element
-    pub fn remove(&mut self, key: &T) -> bool {
-        self.repr.remove(key)
+    /// The insert inside `HashSet`, will not remove existing element if it has the same key.
+    pub fn insert(&mut self, edge: V) {
+        self.repr.replace(HashMapHelper { inner: edge, pd: PhantomData });
+    }
+
+    /// Checks if empty.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.repr.is_empty()
     }
 
     /// Gets iterator
@@ -90,13 +91,14 @@ impl<T, V> ProjectedHashMap<T, V>
     }
 
     /// Gets length
+    #[must_use]
     pub fn len(&self) -> usize {
         self.repr.len()
     }
 
-    /// Checks if empty.
-    pub fn is_empty(&self) -> bool {
-        self.repr.is_empty()
+    /// Removes element
+    pub fn remove(&mut self, key: &T) -> bool {
+        self.repr.remove(key)
     }
 }
 
@@ -104,10 +106,10 @@ impl<T, V> ProjectedHashMap<T, V>
 mod tests {
     use super::*;
 
-    #[derive(Clone, Debug, Eq, Ord, PartialOrd, PartialEq)]
+    #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
     struct User {
-        name: String,
         height: usize,
+        name: String,
         weight: usize,
     }
 
@@ -125,25 +127,6 @@ mod tests {
         fn borrow(&self) -> &String {
             &self.name
         }
-    }
-
-    #[test]
-    fn test_remove_key() {
-        let p1 = "p1".to_string();
-        let p2 = "p2".to_string();
-        let e1 = User::new(p1);
-        let e2 = User::new(p2);
-        let mut se = ProjectedHashMap::default();
-        se.insert(e2.clone());
-
-        let key = e1.name.clone();
-        se.insert(e1.clone());
-        assert_eq!(se.get(&key).unwrap(), &e1);
-        se.remove(&e1.name);
-        assert_eq!(se.get(&key), None);
-
-        let key2 = e2.name.clone();
-        assert_eq!(se.get(&key2).unwrap(), &e2);
     }
 
     #[test]
@@ -168,4 +151,24 @@ mod tests {
         assert_eq!(se.get(&key3).unwrap(), &e3);
         assert_eq!(se.get(&key0).unwrap(), &e0);
     }
+
+    #[test]
+    fn test_remove_key() {
+        let p1 = "p1".to_string();
+        let p2 = "p2".to_string();
+        let e1 = User::new(p1);
+        let e2 = User::new(p2);
+        let mut se = ProjectedHashMap::default();
+        se.insert(e2.clone());
+
+        let key = e1.name.clone();
+        se.insert(e1.clone());
+        assert_eq!(se.get(&key).unwrap(), &e1);
+        se.remove(&e1.name);
+        assert_eq!(se.get(&key), None);
+
+        let key2 = e2.name.clone();
+        assert_eq!(se.get(&key2).unwrap(), &e2);
+    }
 }
+

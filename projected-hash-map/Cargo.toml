@@ -1,6 +1,6 @@
 [package]
 name = "projected-hash-map"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Piotr Mikulski <piotr@near.org>"]
 description = "Implementation of a projected HashMap over HashSet"
